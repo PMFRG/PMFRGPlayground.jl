@@ -1,7 +1,7 @@
 # Ideas for a more general PMFRG.jl code
 
 This repository contains:
-- some sample code (see `/src`)
+- some sample code and ideas written in code (see `/src`)
 - some notes (*at the moment* in LaTeX) that explain what the code should do,
   with reference to the literature (see `/doc`)
 
