@@ -84,86 +84,119 @@ or Eq (72) in Siebe's PM-FRG for Heisenberg Spin 3/2.
 
 
 """
-DGamma_(f1::Flavour, f2::Flavour, f3::Flavour, f4::Flavour, # flavours
+DGamma_(a::Flavour, b::Flavour, c::Flavour, d::Flavour, # flavours
     ij::SitePair, # sitepair
-    w1::MatsubaraF, w2::MatsubaraF, w3::MatsubaraF, w4::MatsubaraF, # matsubaras
+    wa::MatsubaraF, wb::MatsubaraF, wc::MatsubaraF, wd::MatsubaraF, # matsubaras
     T::Temperature,
     geometry, Gamma, P) =
-    let s = w1 + w2, # PRB 103, 104431 Eq (22)
-        t = w1 + w3,
-        u = w1 + w4,
+    let s = wa + wb, # PRB 103, 104431 Eq (22)
+        t = wa + wc,
+        u = wa + wd,
         (; i, j) = geometry.PairTypes[ij],
         ss = geometry.siteSum[:,ij],
         is_on_site_pair = occursin(ij,geometry.OnSitePairs)
 
-
-
         if is_on_site_pair
-            0 # TODO
+        T*sum( # for w in matsubaras
+            sum( # for ap,bp,cp,dp
+                 @sitesum ss ik ki xk (
+                     - Gamma(a, b, ap, dp, # flavours)
+                             ik, # sitepair
+                             wa,wb,w,-s-w, # matsubaras
+                            ) *
+                       Gamma(bp,cp,c,d, # flavours
+                             ki, # sitepair
+                             -w, s+w, wc, wd, # matsubaras
+                            ) *
+                       P(ap,bp,cp,dp, # flavours
+                         xk,xk, # sites
+                         -w, -s, # matsubaras
+                        )
+                     + Gamma(a,c,bp,cp, # flavours
+                             ik, # sitepair
+                             wa,wc,-w,w-t, # matsubaras
+                          ) *
+                       Gamma(ap,dp,b,d, # flavours
+                             ki, # sitepair
+                             w,t-w,wb,wd, # matsubaras
+                            ) *
+                       P(ap,bp,cp,dp, # flavours
+                         xk,xk, # sites
+                         -w,t, # matsubaras
+                         )
+                     - Gamma(a,d,ap,dp, # flavours
+                             ik, # sitepair
+                             wa,wd,w,-w-u, # matsubaras
+                          ) *
+                       Gamma(bp,cp,b,c, # flavours
+                             ki, # sitepair
+                             -w,u+w,wb,wc, # matsubaras
+                            ) *
+                       P(ap,bp,cp,dp, # flavours
+                         xk,xk, # sites
+                         -w,-u, # matsubaras
+                         )
+                     )
+                 for ap in flavours, bp in flavours, cp in flavours, dp in flavours)
+               for w in matsubaras)
         else
         T*sum( # for w in matsubaras
-            sum( # for f1p,f2p,f3p,f4p
-                (@sitesum ss ik kj xk - Gamma(f1, f2, f1p, f4p, # flavours
-                                             ik, # sitepair
-                                             w1, w2, w, -w-s, # matsubaras
+            sum( # for ap,bp,cp,dp
+                (@sitesum ss ik kj xk - Gamma(a, b, ap, dp, # flavours
+                                              ik, # sitepair
+                                              wa, wb, w, -w-s, # matsubaras
                                              ) *
-                                       Gamma(f2p, f3p, f3, f4, # flavours
+                                       Gamma(bp, cp, c, d, # flavours
                                              kj, # sitepair
-                                             -w, w+s, w3, w4, # matsubaras
-                                             ) *
-                                       P(f1p, f2p, f3p, f4p, # flavours
+                                             -w, w+s, wc, wd, # matsubaras
+                                            ) *
+                                       P(ap, bp, cp, dp, # flavours
                                          xk, xk, # sites
                                          -w, -s, # matsubara
-                                         )
+                                        )
                  ) + (
-                    Gamma(f1, f2p, f3, f3p, # flavours
+                    Gamma(a, bp, c, cp, # flavours
                         ij, # sitepair
-                        w1, -w, w3, w - t) # matsubaras
-                    * Gamma(f2, f1p, f4, f4p, # flavours
+                        wa, -w, wc, w - t) # matsubaras
+                    * Gamma(b, ap, d, dp, # flavours
                         ij, # sitepair
-                        w2, w, w4, -w+t) # matsubaras
-                    * P(f1p, f2p, f3p, f4p, # flavours
+                        wb, w, wd, -w+t) # matsubaras
+                    * P(ap, bp, cp, dp, # flavours
                         i, j,#sites
                         -w, +t) # matsubara
                     ####
-                    + Gamma(f1, f3p, f3, f2p, # flavours
+                    + Gamma(a, cp, c, bp, # flavours
                         ij, # sitepair
-                        w1, w-t, w3, -w) # matsubaras
-                    * Gamma(f2, f4p, f4, f1p, # flavours
+                        wa, w-t, wc, -w) # matsubaras
+                    * Gamma(b, dp, d, ap, # flavours
                         ij, # sitepair
-                        w2, -w+t, w4, w) # matsubaras
-                    * P(f1p, f2p, f3p, f4p, # flavours
+                        wb, -w+t, wd, w) # matsubaras
+                    * P(ap, bp, cp, dp, # flavours
                         j, i,#sites
                         -w, +t) # matsubara
                 ) - (
-                    Gamma(f1, f4p, f4, f1p, # flavours
+                    Gamma(a, dp, d, ap, # flavours
                         ij, # sitepair
-                        w1, -w-u, w4, w) # matsubaras
-                    *Gamma(f2, f3p, f3, f2p,#flavours
+                        wa, -w-u, wd, w) # matsubaras
+                    *Gamma(b, cp, c, bp,#flavours
                         ij, # sitepair
-                        w2, w+u, w3, -w) # matsubaras
-                    *P(f1p, f2p, f3p, f4p,# flavours
+                        wb, w+u, wc, -w) # matsubaras
+                    *P(ap, bp, cp, dp,# flavours
                         i, j, # sites
                         -w, -u) # matsubara
                     ####
-                    + Gamma(f1, f1p, f4, f4p, # flavours
+                    + Gamma(a, ap, d, dp, # flavours
                         ij, # sitepair
-                        w1, w, w4, -w-u) # matsubaras
-                    * Gamma(f2, f2p, f3, f3p, # flavours
+                        wa, w, wd, -w-u) # matsubaras
+                    * Gamma(b, bp, c, cp, # flavours
                         ij, # sitepair
-                        w2, -w, 3, w+u) # matsubaras
-                    * P(f1p, f2p, f3p, f4p, # flavours
+                        wb, -w, 3, w+u) # matsubaras
+                    * P(ap, bp, cp, dp, # flavours
                         j,i, # sites
                         -w, -u) # matsubaras
                     )
-                 for f1p in flavours, f2p in flavours, f3p in flavours, f4p in flavours)
+                 for ap in flavours, bp in flavours, cp in flavours, dp in flavours)
                for w in matsubaras)
             end # if is_on_site_pair
     end # let s,t,u
 #! format: on
-
-DGamma_(f1::Flavour, f2::Flavour, f3::Flavour, f4::Flavour, # flavours
-    ij::SitePair, # sitepair
-    w1::MatsubaraF, w2::MatsubaraF, w3::MatsubaraF, w4::MatsubaraF, # matsubaras
-    T::Temperature,
-    geometry, Gamma) =
