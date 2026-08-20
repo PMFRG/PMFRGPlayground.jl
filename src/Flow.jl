@@ -12,12 +12,12 @@ abstract type Site end
 P(f1::Flavour, f2::Flavour, f3::Flavour, f4::Flavour, # Flavours
   i::Site, j::Site, # Sites
   w::MatsubaraF, s::MatsubaraF, # Matsubaras
-) = S(i, f1, f2, w) * G(j, f3, f4, w + s)
+) = S(f1, f2, i, w) * G(f3, f4, j, w + s)
 #! format: on
 
 # TODO: take, e.g., from Yannik's PMFRG simplified code
-G(i::Site, f1::Flavour, f2::Flavour, w::MatsubaraF) = nothing
-S(i::Site, f1::Flavour, f2::Flavour, w::MatsubaraF) = nothing
+G(f1::Flavour, f2::Flavour, i::Site, w::MatsubaraF) = nothing
+S(f1::Flavour, f2::Flavour, i::Site, w::MatsubaraF) = nothing
 
 
 #
@@ -63,11 +63,20 @@ which are not linearly independent.
 - `geometry`: Geometry object containing all the information on the lattice geometry (see `struct Geometry` from SpinFRGLattices.jl)
 - `Gamma`: A function representing the 4-point vertex, with the signature
    ```julia
-   Gamma(f1::Flavour, f2::Flavour, f3::Flavour, f4::Flavour, # flavours
+   Gamma(a::Flavour, b::Flavour, c::Flavour, c::Flavour, # flavours
        ij::SitePair, # sitepair
-       w1::MatsubaraF, w2::MatsubaraF, w3::MatsubaraF, w4::MatsubaraF, # matsubaras
+       wa::MatsubaraF, wb::MatsubaraF, wc::MatsubaraF, wd::MatsubaraF, # matsubara frequencies
+       )
    ```
-- `P`: A function representing the product of the 2-point green function G and
+- `P`: A function representing the product of the 2-point green function G
+       and the single-scale propagator S, with the signature
+   ```julia
+   P(a::Flavour, b::Flavour, c::Flavour, c::Flavour, # flavours
+     i::Site, j::Site, # sites
+     w::MatsubaraF,wb::MatsubaraF, # matsubara frequencies
+     )
+
+   ```
 
 
 
@@ -88,13 +97,13 @@ DGamma_(a::Flavour, b::Flavour, c::Flavour, d::Flavour, # flavours
     ij::SitePair, # sitepair
     wa::MatsubaraF, wb::MatsubaraF, wc::MatsubaraF, wd::MatsubaraF, # matsubaras
     T::Temperature,
-    geometry, Gamma, P) =
-    let s = wa + wb, # PRB 103, 104431 Eq (22)
-        t = wa + wc,
-        u = wa + wd,
-        (; i, j) = geometry.PairTypes[ij],
-        ss = geometry.siteSum[:,ij],
-        is_on_site_pair = occursin(ij,geometry.OnSitePairs)
+    geometry, matsubaras, flavours,
+    Gamma, P) = let s = wa + wb, # PRB 103, 104431 Eq (22)
+                    t = wa + wc,
+                    u = wa + wd,
+                    (; i, j) = geometry.PairTypes[ij],
+                    ss = geometry.siteSum[:,ij],
+                    is_on_site_pair = occursin(ij,geometry.OnSitePairs)
 
         if is_on_site_pair
         T*sum( # for w in matsubaras
@@ -200,3 +209,28 @@ DGamma_(a::Flavour, b::Flavour, c::Flavour, d::Flavour, # flavours
             end # if is_on_site_pair
     end # let s,t,u
 #! format: on
+
+DSigma_(a::Flavour,b::Flavour, # flavours
+        i::Site, # site
+        w::MatsubaraF, # matsubara
+        T::Temperature,
+        geometry, matsubaras, Gamma, S) = let pairs = [ ij for ij in 1:geometry.Npairs
+                                                           if (geometry.Pairtypes[ij].i == i ||
+                                                               geometry.Pairtypes[ij].j == i )]
+
+            -T/2* sum( # for wp in matsubaras
+                       sum( # for c in flavours, d in flavours
+                            sum(
+                                let pair = geometry.Pairtypes[ij]
+                                    j = if (i == pair.i) pair.j else pair.i end
+                            S(c,d,# flavours
+                              j,
+                                    -wp)*Gamma(c,b,a,b,
+                                               ij,
+                                               -wp,wp,w,-w)
+                                    end
+                                for ij in pairs)
+                            for c in flavours, d in flavours)
+                       for wp in matsubaras)
+
+        end # let

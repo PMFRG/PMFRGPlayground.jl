@@ -222,12 +222,16 @@ TODO: This needs review. [\ref{PFFRGReview}], Eq. 55 for example does not mentio
 the $T/2$ factor
 (maybe because it's based on the $\Lambda$ flow?)
 and also contracts the indices in a different way
-than [\ref{PRB103}], Eq. 23b (which matches [\ref{PMFRGFullAniso}], lines 595-604)
+than [\ref{PRB103}], Eq. 23b (which matches [\ref{PMFRGFullAniso}], lines 595-604).
+
+The original PMFRG code has a $T$ factor, the $\frac{1}{2}$ is not immediately obvious
+but it might be because of the changes/simplifications
+coming from the parametrization in the Heisenberg case.
 
 
 \begin{equation}
   \begin{aligned}
-    \frac{d}{d\Lambda} \Sigma^{i}_{ab}(\omega) = -\frac{T}{2} \sum_\psi \sum_{j} S^{j}_{cd}(\psi)\Gamma^{ji}_{cdab}(-\psi,\psi,\omega,-\omega)
+    \frac{d}{d\Lambda} \Sigma^{i}_{ab}(\omega) = -\frac{T}{2} \sum_\psi \sum_{j} S^{j}_{cd}(-\omega')\Gamma^{ji}_{cdab}(-\omega',\omega',\omega,-\omega)
   \end{aligned}
 \end{equation}
 
