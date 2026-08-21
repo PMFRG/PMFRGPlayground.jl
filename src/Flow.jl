@@ -8,16 +8,24 @@ abstract type SitePair end
 abstract type Site end
 
 
+# Propagators
+# Notice that these depend on Sigma
+# and, in the case of S_kat,
+# DSigma.
+
 #! format: off
-P(f1::Flavour, f2::Flavour, f3::Flavour, f4::Flavour, # Flavours
+P_(f1::Flavour, f2::Flavour, f3::Flavour, f4::Flavour, # Flavours
   i::Site, j::Site, # Sites
   w::MatsubaraF, s::MatsubaraF, # Matsubaras
-) = S(f1, f2, i, w) * G(f3, f4, j, w + s)
+  Sigma, DSigma,
+
+) = S_kat_(f1, f2, i, w, Sigma, DSigma) * G_(f3, f4, j, w + s, Sigma)
 #! format: on
 
 # TODO: take, e.g., from Yannik's PMFRG simplified code
-G(f1::Flavour, f2::Flavour, i::Site, w::MatsubaraF) = nothing
-S(f1::Flavour, f2::Flavour, i::Site, w::MatsubaraF) = nothing
+G_(f1::Flavour, f2::Flavour, i::Site, w::MatsubaraF, Sigma) = nothing
+S_kat_(f1::Flavour, f2::Flavour, i::Site, w::MatsubaraF, Sigma, DSigma) = nothing
+S(f1::Flavour, f2::Flavour, i::Site, w::MatsubaraF, Sigma) = nothing
 
 
 #
