@@ -61,6 +61,30 @@ Sinv = inv(S)
 end
 
 """
+Parametrization basis
+done with 5d levi-civita.
+
+But:
+- this is NOT an algebra,
+  the contractions produce tensors which are symmetric in some indices
+  while everything is antisymmetric in this basis.
+- it is not invariant under spin transformation by the Ks
+
+(keeping this as a 'negative result').
+"""
+module GammaBasisLC
+export b, bduals
+import Combinatorics: levicivita
+
+epsilon = [ levicivita([a,b,c,d,e]) for a in 1:5, b in 1:5, c in 1:5, d in 1:5, e in 1:5 ]
+
+b = epsilon/sqrt(24)
+bduals = b
+
+end
+
+
+"""
 Coefficients that can be used to represent a contraction of two Γs
 (that are a linear combination of elements of b)
 as a linear combination of elements of b.
@@ -218,11 +242,30 @@ end
 
 function test_gamma_basis_and_duals(basis, basis_dual)
     @testset verbose = true "Basis" begin
+        @testset "basis is invariant for all transformations" begin
+            @tullio M[a,b,c,d,ap,bp,cp,dp,i] := (
+                  K[a,ap,i]     * delta5[b,bp] * delta5[c,cp] * delta5[d,dp] +
+                  delta5[a,ap]  * K[b,bp,i]    * delta5[c,cp] * delta5[d,dp] +
+                  delta5[a,ap]  * delta5[b,bp] * K[c,cp,i]    * delta5[d,dp] +
+                  delta5[a,ap]  * delta5[b,bp] * delta5[c,cp] * K[d,dp,i])
+
+            for i in 1:3
+                for e in 1:5
+                    @tullio t[a,b,c,d] := M[a,b,c,d,ap,bp,cp,dp,i]*basis[ap,bp,cp,dp,e]
+                    @test all(isapprox.(t , 0, atol=1.0e-15))
+                end
+            end
+
+        end
+
+
         @testset "dual basis is dual to basis" begin
             bbdual_dot = [dot(basis[:, :, :, :, i],
                 basis_dual[:, :, :, :, j]) for i in 1:5,
                           j in 1:5]
+            println(bbdual_dot)
             @test bbdual_dot ≈ I
+
         end
 
         @testset "Decomposition of Γ as a linear combination of elements in b using the dual" begin
