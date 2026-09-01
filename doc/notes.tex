@@ -138,9 +138,17 @@ In the isotropic (Heisenberg) or diagonal (``XYZ'') case
 the inverse is trivial, but not in the most general anisotropic case,
 where some matrix inversion function needs to be used.
 
-The expression \ref{g-tflow-general} comes from
-\href{https://github.com/NoahHassan/pmfrg\_xyz/blob/1824a2bf7811b5276eee6d8d7f40087b5d8a4c15/src/PMFRG_general.jl\#L146-L159}{Noah's general PMFRG}
-code, but there should be a more official source.
+The expression \ref{g-tflow-general} comes from \ref{TemperatureFlowPaper}, Eq. 6
+(with $A=0$, limiting ourselves to the case with $h=0$), by:
+\begin{itemize}
+\item using $\theta(T) = \frac{1}{\sqrt{T}}$
+\item plug that into the general expression for $G$ that comes from the Dyson equation:
+  \begin{equation}
+    G^{-1} = G^{-1}_0 - \Sigma
+  \end{equation}
+  (That is, Eq. 6.34 in \ref{FRGBible}, or Eq.9 in \ref{TemperatureFlowPaper}).
+\item obviously, multiplying by $-i$
+\end{itemize}
 
 From the $T$-$\Lambda$ flow [\ref{PMFRGXYZTLambda}] (see line 1599) we get the same expression.
 
@@ -231,7 +239,7 @@ coming from the parametrization in the Heisenberg case.
 
 \begin{equation}
   \begin{aligned}
-    \frac{d}{d\Lambda} \Sigma^{i}_{ab}(\omega) = -\frac{T}{2} \sum_\psi \sum_{j} S^{j}_{cd}(-\omega')\Gamma^{ji}_{cdab}(-\omega',\omega',\omega,-\omega)
+    \frac{d}{d\Lambda} \Sigma^{i}_{ab}(\omega) = -\frac{T}{2} \sum_{\omega'} \sum_{j} S^{j}_{cd}(-\omega')\Gamma^{ji}_{cdab}(-\omega',\omega',\omega,-\omega)
   \end{aligned}
 \end{equation}
 
@@ -242,11 +250,11 @@ This can be seen in the original PMFRG code too.
 
 We define, in the T-flow case
 \begin{equation}
-  P^{ij}_{abcd}(\omega,\psi,T) = -iS_{kat,ab}(\omega,T,i)iG_{cd}(\omega+\psi,T,j)
+  P^{ij}_{abcd}(\omega,\omega',T) = -iS_{kat,ab}(\omega,T,i)iG_{cd}(\omega+\omega',T,j)
 \end{equation}
 and in the $\Lambda$-flow case:
 \begin{equation}
-  P^{ij}_{abcd}(\omega,\psi,T,\Lambda) = -iS_{kat,ab}(\omega,T,i,\Lambda)iG_{cd}(\omega+\psi,T,j,\Lambda)
+  P^{ij}_{abcd}(\omega,\omega',T,\Lambda) = -iS_{kat,ab}(\omega,T,i,\Lambda)iG_{cd}(\omega+\omega',T,j,\Lambda)
 \end{equation}
 
 Notice that in this case we are using the \emph{Katanin} version of $S$.
@@ -438,6 +446,12 @@ from which Eq. \ref{expectedkrelations} trivially follows.
 \item PRB paper by Nils, Björn and Johannes: \href{https://journals.aps.org/prb/abstract/10.1103/PhysRevB.103.104431}{https://journals.aps.org/prb/abstract/10.1103/PhysRevB.103.104431} \label{PRB103}
 \item PMFRG, General fully anisotropic case:
   \href{https://github.com/NoahHassan/pmfrg\_xyz/blob/1824a2bf7811b5276eee6d8d7f40087b5d8a4c15/src/PMFRG\_general.jl}{https://github.com/NoahHassan/pmfrg\_xyz/blob/1824a2bf7811b5276eee6d8d7f40087b5d8a4c15/src/PMFRG\_general.jl} \label{PMFRGFullAniso}
-\end{enumerate}
 
+\item PRB by Benedikt, Johannes, Matías,  Björn and Nils on the Temperature flow in PMFRG:
+  \href{https://doi.org/10.1103/PhysRevB.109.195109}{PRB.109.195109} \label{TemperatureFlowPaper}
+
+\item Kopietz, Bartosch, Schütz, ``Introduction to the Functional Renormalization Group''
+  \href{https://doi.org/10.1007/978-3-642-05094-7}{https://doi.org/10.1007/978-3-642-05094-7} \label{FRGBible}
+
+\end{enumerate}
 \end{document}
