@@ -393,5 +393,7 @@ function tests()
     return
 end
 
-tests()
-print_representation_to_file("ms.tex")
+if abspath(PROGRAM_FILE) == @__FILE
+    tests()
+    print_representation_to_file("ms.tex")
+end

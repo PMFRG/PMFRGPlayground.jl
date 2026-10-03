@@ -1,5 +1,9 @@
 [deps]
 Combinatorics = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
+DocStringExtensions = "ffbed154-4ef7-542d-bbb7-c09d3a79fcae"
 JuliaFormatter = "98e50ef6-434e-11e9-1051-2b60c6c9e899"
 Latexify = "23fbe1c1-3f47-55db-b15f-69d7ec21a316"
+Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 Tullio = "bc48ee85-29a4-5162-ae0b-a64e1601d4bc"
+VimBindings = "51b3953f-5e5d-4a6b-bd62-c64b6fa1518a"

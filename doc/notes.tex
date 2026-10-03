@@ -226,10 +226,8 @@ to derive other quantities.
 
 \subsection{$\Sigma$}
 
-TODO: This needs review. [\ref{PFFRGReview}], Eq. 55 for example does not mention
-the $T/2$ factor
-(maybe because it's based on the $\Lambda$ flow?)
-and also contracts the indices in a different way
+TODO: This needs review.
+
 than [\ref{PRB103}], Eq. 23b (which matches [\ref{PMFRGFullAniso}], lines 595-604).
 
 The original PMFRG code has a $T$ factor, the $\frac{1}{2}$ is not immediately obvious
@@ -242,6 +240,27 @@ coming from the parametrization in the Heisenberg case.
     \frac{d}{d\Lambda} \Sigma^{i}_{ab}(\omega) = -\frac{T}{2} \sum_{\omega'} \sum_{j} S^{j}_{cd}(-\omega')\Gamma^{ji}_{cdab}(-\omega',\omega',\omega,-\omega)
   \end{aligned}
 \end{equation}
+
+In [\ref{PFFRGReview}], Eq. 55 the $T/2$ factor is not mentioned.
+Still $S$ is used to contract one entering and one exiting leg of $\Gamma$,
+noticing that actually this means that in the formalism of
+[\ref{PRB103}], Eq. 23b (and which matches [\ref{PMFRGFullAniso}], lines 595-604)
+
+\begin{tabular}{|c|c|}
+  \hline
+  PFFRGReview [\ref{PFFRGReview}]  &  PRB103 \ref{PRB103}\\
+  \hline
+  1   & 1 \\
+  \hline
+  1'  & 2 \\
+  \hline
+  2   & 3 \\
+  \hline
+  2'  & 4 \\
+  \hline
+\end{tabular}
+
+
 
 Note that $S$ in this case is \emph{not} the Katanin propagator.
 This can be seen in the original PMFRG code too.

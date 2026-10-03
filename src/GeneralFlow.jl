@@ -1,5 +1,8 @@
-include("Flavour.jl")
-include("Matsubara.jl")
+module Flow
+import BaseTypes: Flavour, MatsubaraF, FlowParameter
+import Propagators: G_, S_kat_
+using DocStringExtensions
+
 include("sitesum.jl")
 
 # "Sitepair" indices are in Sitesum, in "System/Geometry objects"
@@ -8,28 +11,22 @@ abstract type SitePair end
 abstract type Site end
 
 
-# Propagators
-# Notice that these depend on Sigma
-# and, in the case of S_kat,
-# DSigma.
-
 #! format: off
+"""
+  $(SIGNATURES)
+
+  Product of S_kat and G
+"""
 P_(f1::Flavour, f2::Flavour, f3::Flavour, f4::Flavour, # Flavours
   i::Site, j::Site, # Sites
   w::MatsubaraF, s::MatsubaraF, # Matsubaras
-  Sigma, DSigma,
+  T::Temperature,
+  iSigma, DiSigma,
 
-) = S_kat_(f1, f2, i, w, Sigma, DSigma) * G_(f3, f4, j, w + s, Sigma)
+) = S_kat_(f1, f2, i, w, iSigma, DiSigma) * G_(f3, f4, j, w + s, iSigma)
 #! format: on
 
-# TODO: take, e.g., from Yannik's PMFRG simplified code
-G_(f1::Flavour, f2::Flavour, i::Site, w::MatsubaraF, Sigma) = nothing
-S_kat_(f1::Flavour, f2::Flavour, i::Site, w::MatsubaraF, Sigma, DSigma) = nothing
-S(f1::Flavour, f2::Flavour, i::Site, w::MatsubaraF, Sigma) = nothing
 
-
-#
-#
 # Note: all these types are used to reduce the possibility
 #       of passing arguments in the wrong order.
 # Notes about the equations in latex:
@@ -86,8 +83,6 @@ which are not linearly independent.
 
    ```
 
-
-
 # Additional notes
 ## Space translation symmetry
 This is embodied by the fact that we are using a "geometry"
@@ -98,7 +93,6 @@ object coming from the
 This represents
 Eq (4) in Noah's "PMFRG at Full Anisotropy",
 or Eq (72) in Siebe's PM-FRG for Heisenberg Spin 3/2.
-
 
 """
 DGamma_(a::Flavour, b::Flavour, c::Flavour, d::Flavour, # flavours
@@ -217,7 +211,11 @@ DGamma_(a::Flavour, b::Flavour, c::Flavour, d::Flavour, # flavours
             end # if is_on_site_pair
     end # let s,t,u
 #! format: on
+#! format: off
+"""
+    $(SIGNATURES)
 
+"""
 DSigma_(a::Flavour,b::Flavour, # flavours
         i::Site, # site
         w::MatsubaraF, # matsubara
@@ -242,3 +240,5 @@ DSigma_(a::Flavour,b::Flavour, # flavours
                        for wp in matsubaras)
 
         end # let
+end
+#! format: on
