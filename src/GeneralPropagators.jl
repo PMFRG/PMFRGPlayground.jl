@@ -25,7 +25,7 @@ G_(f1::Flavour, f2::Flavour, i::Site, w::MatsubaraF, x::FlowParameter, Sigma::Ab
     with the number of flavours as dimension
     (possibly complex).
 """
-G_(i::Site, w::MatsubaraF, x::FlowParameter,Sigma::AbstractSigma)::AbstractMatrix = inv(Ginv_(w,x,Sigma[:,:,i]))
+G_(i::Site, w::MatsubaraF, x::FlowParameter,Sigma::AbstractSigma)::AbstractMatrix = inv(Ginv_(w,x,Sigma[:,:,i,w]))
 
 """
     $(TYPEDSIGNATURES)
@@ -67,7 +67,7 @@ DGinv_(w::MatsubaraF, L::Lambda,_::AbstractMatrix{Real}) = 2im*L.L/w*I
 iG_(f1::Flavour, f2::Flavour, i::Site, w::MatsubaraF, x::FlowParameter, iSigma::AbstractSigma) = iG_(i,w,x,iSigma)[f1,f2]
 
 "$(TYPEDSIGNATURES)"
-iG_(i::Site, w::MatsubaraF, x::FlowParameter,iSigma::AbstractSigma{Real}) = inv(iGinv_(w,x,iSigma[:,:,i]))
+iG_(i::Site, w::MatsubaraF, x::FlowParameter,iSigma::AbstractSigma{Real}) = inv(iGinv_(w,x,iSigma[:,:,i,w]))
 
 
 "$(TYPEDSIGNATURES)

@@ -30,20 +30,25 @@ end
 flavours(nflavours) = (Flavour(i) for i in 1:nflavours)
 
 struct MatsubaraF
-    w::Float64
+    w::Float64 # Is this needed, or the other data member is sufficient?
+    idx::Int64 # Is this needed, or the other data member is sufficient?
 end
 
+MatsubaraF(nw::Int) = MatsubaraF(pi*(2*nw+1),nw) # TODO: check, in the Lambda flow this also depends on T
 # Basic information
-Base.:(+)(w1::MatsubaraF, w2::MatsubaraF) = MatsubaraF(w1.w+w2.w)
-Base.:(-)(w1::MatsubaraF, w2::MatsubaraF) = MatsubaraF(w1.w-w2.w)
+Base.:(+)(w1::MatsubaraF, w2::MatsubaraF) = MatsubaraF(w1.w+w2.w,(w1.idx-1)+(w2.idx-1)+1)
+Base.:(-)(w1::MatsubaraF, w2::MatsubaraF) = MatsubaraF(w1.w-w2.w,(w1.idx-1)-(w2.idx-1)+1)
 
-matsubaras(N) = (MatsubaraF(i) for i in -N:N)
+# TODO: fixme, this might depend on the temperature,
+#       but we don't know the temperature now.
+matsubaras(N) = (MatsubaraF(i,i) for i in -N:N)
 
 
 # TODO: think - we might need conversion functions
 #       between matsubara frequencies and the corresponding
 #       integer index in the data structure,
 #       or we can bake that into the structures.
+#       See above TODO
 
 struct Temperature <: FlowParameter
     T::Float64
@@ -87,7 +92,7 @@ to be used for testing purposes.
 struct SigmaBase{T} <: AbstractSigma{T}
     v::Array{T,3}
 end
-Base.getindex(s::SigmaBase, f1::Flavour, f2::Flavour, i::Site) = s.v[f1.f,f2.f,i.idx]
-Base.getindex(s::SigmaBase, ::Colon, ::Colon, i::Site) = s.v[:,:,i.idx]
+Base.getindex(s::SigmaBase, f1::Flavour, f2::Flavour, i::Site,w::MatsubaraF ) = s.v[f1.f,f2.f,i.idx,w]
+Base.getindex(s::SigmaBase, ::Colon, ::Colon, i::Site,w::MatsubaraF) = s.v[:,:,i.idx,w]
 
 end
