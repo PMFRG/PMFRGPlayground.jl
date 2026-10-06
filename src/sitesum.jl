@@ -1,10 +1,27 @@
 using Test
 include("ExprManipulation.jl")
 
-# This macro should allow to write
-# @sitesum ss ki kj k f(ki,kj,k, ...)
-# and obtain the sum
-# sum( m * f(ki,kj,k) for (ki,kj,k,m) in ss)
+"""
+This macro is a shorthand for the summation over site pairs,
+taking into account the right multiplicity.
+
+This macro allows to write
+
+```
+@sitesum ss ki kj k expr(ki,kj,k, ...)
+```
+
+and obtain the sum
+
+```
+sum( m * expr(ki,kj,k) for (ki,kj,k,m) in zip(ss.ki,ss.kj,ss.xk,ss.m))
+```
+
+Arguing that the first expression
+is a little more akin to the mathematical notation
+than the second one.
+
+"""
 macro sitesum(siteSum,ki,kj,xk,expr)
 
     # One needs to escape expr with esc
