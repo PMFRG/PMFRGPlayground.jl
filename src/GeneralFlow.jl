@@ -1,9 +1,7 @@
 module Flow
-import BaseTypes: Flavour, MatsubaraF, FlowParameter
+import BaseTypes: Flavour, MatsubaraF, FlowParameter, Temperature
 import Propagators: G_, S_kat_
 using DocStringExtensions
-
-include("sitesum.jl")
 
 # "Sitepair" indices are in Sitesum, in "System/Geometry objects"
 abstract type SitePair end
@@ -110,7 +108,7 @@ DGamma_(a::Flavour, b::Flavour, c::Flavour, d::Flavour, # flavours
         if is_on_site_pair
         T*sum( # for w in matsubaras
             sum( # for ap,bp,cp,dp
-                 @sitesum ss ik ki xk (
+                 sum(m*(
                      - Gamma(a, b, ap, dp, # flavours)
                              ik, # sitepair
                              wa,wb,w,-s-w, # matsubaras
@@ -147,13 +145,13 @@ DGamma_(a::Flavour, b::Flavour, c::Flavour, d::Flavour, # flavours
                          xk,xk, # sites
                          -w,-u, # matsubaras
                          )
-                     )
+                     ) for (ik,ki,xk,m) in zip(ss.ki,ss.kj,ss.xk,ss.m))
                  for ap in flavours, bp in flavours, cp in flavours, dp in flavours)
                for w in matsubaras)
         else
         T*sum( # for w in matsubaras
             sum( # for ap,bp,cp,dp
-                (@sitesum ss ik kj xk - Gamma(a, b, ap, dp, # flavours
+                sum(- m*Gamma(a, b, ap, dp, # flavours
                                               ik, # sitepair
                                               wa, wb, w, -w-s, # matsubaras
                                              ) *
@@ -165,6 +163,7 @@ DGamma_(a::Flavour, b::Flavour, c::Flavour, d::Flavour, # flavours
                                          xk, xk, # sites
                                          -w, -s, # matsubara
                                         )
+                    for (ik,kj,xk,m) in zip(s.ki, ss.kj, ss.xk, ss.m)
                  ) + (
                     Gamma(a, bp, c, cp, # flavours
                         ij, # sitepair
