@@ -1,13 +1,7 @@
 module Flow
-import BaseTypes: Flavour, MatsubaraF, FlowParameter, Temperature
-import Propagators: G_, S_kat_
+import BaseTypes: Flavour, MatsubaraF, FlowParameter, Temperature, AbstractGamma, SitePair, Site
+import Propagators: G_, S_kat_, S_
 using DocStringExtensions
-
-# "Sitepair" indices are in Sitesum, in "System/Geometry objects"
-abstract type SitePair end
-# "Site" indices are in PairTypes, in "System/Geometry objects"
-abstract type Site end
-
 
 #! format: off
 """
@@ -92,13 +86,15 @@ This represents
 Eq (4) in Noah's "PMFRG at Full Anisotropy",
 or Eq (72) in Siebe's PM-FRG for Heisenberg Spin 3/2.
 
+
+4-frequency version, see below for the 3-frequency version
 """
 DGamma_(a::Flavour, b::Flavour, c::Flavour, d::Flavour, # flavours
     ij::SitePair, # sitepair
     wa::MatsubaraF, wb::MatsubaraF, wc::MatsubaraF, wd::MatsubaraF, # matsubaras
     T::Temperature,
     geometry, matsubaras, flavours,
-    Gamma, P) = let s = wa + wb, # PRB 103, 104431 Eq (22)
+    Gamma::AbstractGamma, P) = let s = wa + wb, # PRB 103, 104431 Eq (22)
                     t = wa + wc,
                     u = wa + wd,
                     (; i, j) = geometry.PairTypes[ij],
@@ -210,6 +206,24 @@ DGamma_(a::Flavour, b::Flavour, c::Flavour, d::Flavour, # flavours
             end # if is_on_site_pair
     end # let s,t,u
 #! format: on
+
+DGamma_(a::Flavour, b::Flavour, c::Flavour, d::Flavour, # flavours
+    ij::SitePair, # sitepair
+    s::MatsubaraF, t::MatsubaraF, u::MatsubaraF,
+    T::Temperature,
+    geometry, matsubaras, flavours,
+        Gamma::AbstractGamma, P) =  let wa = (s+t+u)/2 , # PRB 103, 104431 Eq (49)
+            wb = (s-t-u)/2,
+            wc = (-s+t-u)/2,
+            wd = (-s-s+u)/2
+
+            DGamma_(a, b, c, d, # flavours
+                    ij, # sitepair
+                    wa, wb, wc, wd, # matsubaras
+                    T,
+                    geometry, matsubaras, flavours,
+                    Gamma, P)
+end
 #! format: off
 """
     $(SIGNATURES)
@@ -219,7 +233,7 @@ DSigma_(a::Flavour,b::Flavour, # flavours
         i::Site, # site
         w::MatsubaraF, # matsubara
         T::Temperature,
-        geometry, matsubaras, Gamma, S) = let pairs = [ ij for ij in 1:geometry.Npairs
+        geometry, matsubaras, Gamma::AbstractGamma, S) = let pairs = [ ij for ij in 1:geometry.Npairs
                                                            if (geometry.Pairtypes[ij].i == i ||
                                                                geometry.Pairtypes[ij].j == i )]
 

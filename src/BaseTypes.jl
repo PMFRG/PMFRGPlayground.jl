@@ -20,7 +20,20 @@ we get a (pre) compilation error.
 """
 module BaseTypes
 
+"""
+"Sitepair" indices are in Sitesum, in "System/Geometry objects"
+"""
+abstract type SitePair end
+
+"""
+"Site" indices are in PairTypes, in "System/Geometry objects"
+"""
+abstract type Site end
+
+
+
 abstract type FlowParameter end
+
 
 
 struct Flavour
@@ -29,10 +42,26 @@ end
 
 flavours(nflavours) = (Flavour(i) for i in 1:nflavours)
 
-struct MatsubaraF
+
+#
+abstract type MatsubaraF end
+
+
+
+struct FermionicMatsubaraF
     w::Float64 # Is this needed, or the other data member is sufficient?
     idx::Int64 # Is this needed, or the other data member is sufficient?
 end
+
+struct BosonicMatsubaraF
+    w::Float64 # Is this needed, or the other data member is sufficient?
+    idx::Int64 # Is this needed, or the other data member is sufficient?
+end
+
+Base.+(wa::FermionicMatsubaraF,wb::FermionicMatsubaraF) = BosonicMatsubaraF(wa.w+wb.w)
+
+
+
 
 MatsubaraF(nw::Int) = MatsubaraF(pi*(2*nw+1),nw) # TODO: check, in the Lambda flow this also depends on T
 # Basic information
@@ -90,9 +119,40 @@ Base, unoptimized version of Sigma,
 to be used for testing purposes.
 """
 struct SigmaBase{T} <: AbstractSigma{T}
-    v::Array{T,3}
+    v::Array{T,4}
 end
 Base.getindex(s::SigmaBase, f1::Flavour, f2::Flavour, i::Site,w::MatsubaraF ) = s.v[f1.f,f2.f,i.idx,w]
 Base.getindex(s::SigmaBase, ::Colon, ::Colon, i::Site,w::MatsubaraF) = s.v[:,:,i.idx,w]
+
+
+# Tentative, in another file that is specific to spin 3/2...
+struct Sigma3half{T} <: AbstractSigma{T}
+    v::Array{T,2}
+end
+
+
+"""
+
+"""
+abstract type AbstractGamma end
+
+"""
+The 4-frequency version of Gamma can be re-expressed
+in terms of the 3-frequency version.
+"""
+function (G::AbstractGamma)(a::Flavour, b::Flavour, c::Flavour, d::Flavour,
+                            ij::SitePair,
+                            wa::MatsubaraF, wb::MatsubaraF, wc::MatsubaraF, wd::MatsubaraF)
+
+    let s = wa + wb, # PRB 103, 104431 Eq (22)
+        t = wa + wc,
+        u = wa + wd
+
+        G(a,b,c,d, # Flavours
+          ij, # sitepair
+          s,t,u) # frequencies
+    end
+end
+
 
 end

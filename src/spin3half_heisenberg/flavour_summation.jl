@@ -393,7 +393,7 @@ function tests()
     return
 end
 
-if abspath(PROGRAM_FILE) == @__FILE
+if abspath(PROGRAM_FILE) == @__FILE__
     tests()
     print_representation_to_file("ms.tex")
 end

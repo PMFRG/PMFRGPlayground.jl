@@ -18,6 +18,14 @@ using DocStringExtensions
     Version of G returning a single value (possibly complex).
 """
 G_(f1::Flavour, f2::Flavour, i::Site, w::MatsubaraF, x::FlowParameter, Sigma::AbstractSigma) = G_(i,w,x,Sigma)[f1.f,f2.f]
+
+# isotropic systems
+
+abstract type IsotropicSigma <: AbstractSigma
+end
+G_(f1,f2, i::Site, w::MatsubaraF, x::FlowParameter, Sigma::IsotropicSigma) = G_(i,w,x,Sigma) * (f1 == f2)
+G_(i::Site, w::MatsubaraF, x::FlowParameter, Sigma::IsotropicSigma) = G_(i,w,x,Sigma) 
+
 """
     $(TYPEDSIGNATURES)
 
